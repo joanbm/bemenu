@@ -105,6 +105,7 @@ struct input {
     } notify;
 
     bool key_pending;
+    bool ignore_pointer_enter;
 };
 
 struct buffer {

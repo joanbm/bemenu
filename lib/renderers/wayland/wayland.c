@@ -46,18 +46,40 @@ wait_for_events(struct wayland *wayland) {
 }
 
 static void
+sync_callback(void *data, struct wl_callback *callback, uint32_t time)
+{
+    (void)callback;
+    (void)time;
+    struct input *input = data;
+    input->ignore_pointer_enter = false;
+}
+
+static const struct wl_callback_listener sync_callback_listener = {
+    sync_callback
+};
+
+static void
 schedule_windows_render_if_dirty(struct bm_menu *menu, struct wayland *wayland) {
     struct window *window;
+    bool creating_windows = false;
     wl_list_for_each(window, &wayland->windows, link) {
         if (window->render_pending) {
             // This does not happen during normal execution, but only when the windows need to
             // be(re)created. We need to do the render ASAP (not schedule it) because otherwise,
             // since we lack a window, we may not receive further events and will get deadlocked
             render_windows_if_pending(menu, wayland);
-        }
-        if (menu->dirty) {
+            creating_windows = true;
+        } else if (menu->dirty) {
             bm_wl_window_schedule_render(window);
         }
+    }
+
+    // Ignore any "pointer enter" events while windows are being (re)created, as we don't want an
+    // item to be highlighted just because the pointer was sitting over the new window's space
+    if (creating_windows) {
+        wayland->input.ignore_pointer_enter = true;
+        struct wl_callback *sync_callback = wl_display_sync(wayland->display);
+        wl_callback_add_listener(sync_callback, &sync_callback_listener, &wayland->input);
     }
 
     menu->dirty = false;

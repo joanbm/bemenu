@@ -208,6 +208,8 @@ pointer_handle_enter(void *data, struct wl_pointer *wl_pointer,
 {
     (void)wl_pointer, (void)surface;
     struct input *input = data;
+    if (input->ignore_pointer_enter)
+        return;
     input->pointer_event.event_mask |= POINTER_EVENT_ENTER;
     input->pointer_event.serial = serial;
     input->pointer_event.surface_x = surface_x,
