@@ -613,9 +613,6 @@ bm_wl_repeat(struct wayland *wayland)
     if (read(wayland->fds.repeat, &exp, sizeof(exp)) != sizeof(exp))
         return;
 
-    if (wayland->input.notify.key)
-        wayland->input.notify.key(WL_KEYBOARD_KEY_STATE_PRESSED, wayland->input.repeat_sym, wayland->input.repeat_key + 8);
-
     press(&wayland->input, wayland->input.repeat_sym, wayland->input.repeat_key, WL_KEYBOARD_KEY_STATE_PRESSED);
 }
 

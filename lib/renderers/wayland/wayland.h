@@ -101,7 +101,7 @@ struct input {
     int32_t repeat_delay_nsec;
 
     struct {
-        void (*key)(enum wl_keyboard_key_state state, xkb_keysym_t sym, uint32_t code);
+        void (*key)(enum wl_keyboard_key_state state, xkb_keysym_t sym, uint32_t key);
     } notify;
 };
 
