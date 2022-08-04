@@ -30,6 +30,10 @@ wait_for_events(struct wayland *wayland) {
     if (wl_display_flush(wayland->display) < 0 && errno != EAGAIN)
         return false;
 
+    // We still have pending keys to process from the last iteration's events
+    if (wayland->input.pending_keypress_write_idx - wayland->input.pending_keypress_read_idx > 0)
+        return true;
+
     struct epoll_event ep[16];
     uint32_t num = epoll_wait(efd, ep, 16, -1);
     for (uint32_t i = 0; i < num; ++i) {
@@ -83,9 +87,10 @@ poll_key(const struct bm_menu *menu, unsigned int *unicode)
     assert(wayland && unicode);
     *unicode = 0;
 
-    struct input_keypress *keypress = &wayland->input.keypress;
-    if (keypress->sym == XKB_KEY_NoSymbol)
-        return BM_KEY_NONE;
+    if (wayland->input.pending_keypress_write_idx - wayland->input.pending_keypress_read_idx == 0)
+         return BM_KEY_NONE;
+    struct input_keypress *keypress = &wayland->input.pending_keypress_ring[
+        wayland->input.pending_keypress_read_idx++ % BM_WAYLAND_MAX_PENDING_KEYS];
 
     xkb_keysym_t sym = keypress->sym;
     uint32_t mods = keypress->modifiers;

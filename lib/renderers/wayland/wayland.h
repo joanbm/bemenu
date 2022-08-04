@@ -85,6 +85,8 @@ struct input_keypress {
     uint32_t unicode;
 };
 
+#define BM_WAYLAND_MAX_PENDING_KEYS 16
+
 struct input {
     int *repeat_fd;
 
@@ -95,7 +97,10 @@ struct input {
     struct touch_event touch_event;
     struct xkb xkb;
 
-    struct input_keypress keypress;
+    struct input_keypress pending_keypress_ring[BM_WAYLAND_MAX_PENDING_KEYS];
+    size_t pending_keypress_read_idx;
+    size_t pending_keypress_write_idx;
+
     uint32_t last_modifiers;
 
     xkb_keysym_t repeat_sym;

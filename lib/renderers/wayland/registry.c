@@ -108,8 +108,11 @@ keyboard_handle_leave(void *data, struct wl_keyboard *keyboard, uint32_t serial,
 static void
 press(struct input *input, xkb_keysym_t sym, uint32_t key, enum wl_keyboard_key_state state)
 {
-    if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-        struct input_keypress *keypress = &input->keypress;
+    // If this happens, either bemenu is horribly late at processing events, or large cat on keyboard
+    bool ring_overflow = input->pending_keypress_write_idx - input->pending_keypress_read_idx == BM_WAYLAND_MAX_PENDING_KEYS;
+    if (state == WL_KEYBOARD_KEY_STATE_PRESSED && !ring_overflow) {
+        struct input_keypress *keypress = &input->pending_keypress_ring[
+            input->pending_keypress_write_idx++ % BM_WAYLAND_MAX_PENDING_KEYS];
         keypress->sym = sym;
         keypress->code = key + 8;
         keypress->modifiers = input->last_modifiers;
