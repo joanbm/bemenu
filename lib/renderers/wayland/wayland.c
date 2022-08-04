@@ -83,15 +83,15 @@ poll_key(const struct bm_menu *menu, unsigned int *unicode)
     assert(wayland && unicode);
     *unicode = 0;
 
-    if (wayland->input.sym == XKB_KEY_NoSymbol)
+    struct input_keypress *keypress = &wayland->input.keypress;
+    if (keypress->sym == XKB_KEY_NoSymbol)
         return BM_KEY_NONE;
 
-    xkb_keysym_t sym = wayland->input.sym;
+    xkb_keysym_t sym = keypress->sym;
     uint32_t mods = wayland->input.modifiers;
-    *unicode = xkb_state_key_get_utf32(wayland->input.xkb.state, wayland->input.code);
+    *unicode = xkb_state_key_get_utf32(wayland->input.xkb.state, keypress->code);
 
-    wayland->input.sym = XKB_KEY_NoSymbol;
-    wayland->input.code = 0;
+    *keypress = (struct input_keypress){0};
 
     switch (sym) {
         case XKB_KEY_Up:

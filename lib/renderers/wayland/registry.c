@@ -109,8 +109,9 @@ static void
 press(struct input *input, xkb_keysym_t sym, uint32_t key, enum wl_keyboard_key_state state)
 {
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-        input->sym = sym;
-        input->code = key + 8;
+        struct input_keypress *keypress = &input->keypress;
+        keypress->sym = sym;
+        keypress->code = key + 8;
     }
 
     if (input->notify.key)
@@ -130,7 +131,7 @@ keyboard_handle_key(void *data, struct wl_keyboard *keyboard, uint32_t serial, u
     xkb_keysym_t sym = xkb_state_key_get_one_sym(input->xkb.state, key + 8);
     press(input, sym, key, state);
 
-    if (state == WL_KEYBOARD_KEY_STATE_PRESSED && xkb_keymap_key_repeats(input->xkb.keymap, input->code)) {
+    if (state == WL_KEYBOARD_KEY_STATE_PRESSED && xkb_keymap_key_repeats(input->xkb.keymap, key + 8)) {
         struct itimerspec its;
         input->repeat_sym = sym;
         input->repeat_key = key;

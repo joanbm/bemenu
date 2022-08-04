@@ -78,6 +78,11 @@ struct touch_event {
     struct touch_point points[2];
 };
 
+struct input_keypress {
+    xkb_keysym_t sym;
+    uint32_t code;
+};
+
 struct input {
     int *repeat_fd;
 
@@ -88,8 +93,7 @@ struct input {
     struct touch_event touch_event;
     struct xkb xkb;
 
-    xkb_keysym_t sym;
-    uint32_t code;
+    struct input_keypress keypress;
     uint32_t modifiers;
 
     xkb_keysym_t repeat_sym;
