@@ -111,10 +111,6 @@ press(struct input *input, xkb_keysym_t sym, uint32_t key, enum wl_keyboard_key_
     if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
         input->sym = sym;
         input->code = key + 8;
-        input->key_pending = true;
-    } else if (!input->key_pending) {
-        input->sym = XKB_KEY_NoSymbol;
-        input->code = 0;
     }
 
     if (input->notify.key)
