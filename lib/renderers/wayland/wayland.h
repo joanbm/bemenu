@@ -81,6 +81,8 @@ struct touch_event {
 struct input_keypress {
     xkb_keysym_t sym;
     uint32_t code;
+    uint32_t modifiers;
+    uint32_t unicode;
 };
 
 struct input {
@@ -94,7 +96,7 @@ struct input {
     struct xkb xkb;
 
     struct input_keypress keypress;
-    uint32_t modifiers;
+    uint32_t last_modifiers;
 
     xkb_keysym_t repeat_sym;
     uint32_t repeat_key;

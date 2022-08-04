@@ -112,6 +112,8 @@ press(struct input *input, xkb_keysym_t sym, uint32_t key, enum wl_keyboard_key_
         struct input_keypress *keypress = &input->keypress;
         keypress->sym = sym;
         keypress->code = key + 8;
+        keypress->modifiers = input->last_modifiers;
+        keypress->unicode = xkb_state_key_get_utf32(input->xkb.state, keypress->code);
     }
 
     if (input->notify.key)
@@ -162,10 +164,10 @@ keyboard_handle_modifiers(void *data, struct wl_keyboard *keyboard, uint32_t ser
     xkb_state_update_mask(input->xkb.state, mods_depressed, mods_latched, mods_locked, 0, 0, group);
     xkb_mod_mask_t mask = xkb_state_serialize_mods(input->xkb.state, XKB_STATE_MODS_DEPRESSED | XKB_STATE_MODS_LATCHED);
 
-    input->modifiers = 0;
+    input->last_modifiers = 0;
     for (uint32_t i = 0; i < MASK_LAST; ++i) {
         if (mask & input->xkb.masks[i])
-            input->modifiers |= BM_XKB_MODS[i];
+            input->last_modifiers |= BM_XKB_MODS[i];
     }
 }
 
